@@ -1,0 +1,1 @@
+echo $(echo -n $1 | wc -c)
