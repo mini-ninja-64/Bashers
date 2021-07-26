@@ -1,0 +1,10 @@
+#!/bin/bash
+
+echo "This can take a while!"
+
+git --no-pager tag --sort=taggerdate -l | while read TAG
+do
+  git tag -d "$TAG"
+done
+
+git fetch origin --tags
