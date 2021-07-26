@@ -1,1 +1,3 @@
-echo $(echo -n $1 | wc -c)
+#!/bin/bash
+
+echo $(echo -n "$1" | wc -c)
