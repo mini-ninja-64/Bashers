@@ -1,0 +1,57 @@
+#!/bin/bash
+
+SERVER=http://esp_zigbee.local/cm
+EXPECTED_RESPONSE='{"ZbSend":"Done"}'
+
+percentMap() {
+    PERCENT=$1
+    MAX=$2
+
+    if (( $PERCENT > 100 )); then
+        PERCENT=100
+    elif (( $PERCENT < 0 )); then
+        PERCENT=0
+    fi
+
+    EXPRESSION=$(printf "(%f/100.0)*%f" $PERCENT $MAX)
+    VALUE_FLOAT=$(echo "scale=4; $EXPRESSION" | bc)
+    VALUE=$(printf "%.0f" $VALUE_FLOAT)
+
+    echo $VALUE
+}
+
+case "$1" in
+"on" | "ON")
+    KEYWORD="Power"
+    ARG="true"
+    ;;
+"off" | "OFF")
+    KEYWORD="Power"
+    ARG="false"
+    ;;
+"temp" | "temperature" | "t")
+    KEYWORD="CT"
+    ARG=$(percentMap $2 65534)
+    ;;
+"bright" | "brightness" | "b")
+    KEYWORD="Dimmer"
+    ARG=$(percentMap $2 254)
+    ;;
+"execute" | "exec")
+    KEYWORD=$2
+    ARG=$3
+    ;;
+*)
+    echo "Command '$1' does not exist"
+    exit 1
+    ;;
+esac
+
+JSON="{\"group\":100,\"Send\":{\"${KEYWORD}\":${ARG}}}"
+RESPONSE=$(curl -s --data-urlencode "cmnd=ZbSend ${JSON}" $SERVER)
+
+if [ "$RESPONSE"=="$EXPECTED_RESPONSE" ]; then
+    echo "Done!"
+else
+    echo $RESPONSE
+fi
