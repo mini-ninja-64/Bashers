@@ -1,7 +1,6 @@
 #!/bin/bash
 
 SERVER=http://esp_zigbee.local/cm
-EXPECTED_RESPONSE='{"ZbSend":"Done"}'
 
 percentMap() {
     PERCENT=$1
@@ -49,9 +48,10 @@ esac
 
 JSON="{\"group\":100,\"Send\":{\"${KEYWORD}\":${ARG}}}"
 RESPONSE=$(curl -s --data-urlencode "cmnd=ZbSend ${JSON}" $SERVER)
+EXPECTED_RESPONSE='{"ZbSend":"Done"}'
 
-if [ "$RESPONSE"=="$EXPECTED_RESPONSE" ]; then
+if [[ "$RESPONSE" == "$EXPECTED_RESPONSE" ]]; then
     echo "Done!"
 else
-    echo $RESPONSE
+    echo "$RESPONSE"
 fi
