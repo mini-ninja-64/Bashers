@@ -1,1 +1,3 @@
+#!/bin/bash
+
 kill -9 $(lsof -Fp -i :${1} | grep "^p" -m1 | cut -c 2-)

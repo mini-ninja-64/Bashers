@@ -1,2 +1,3 @@
-# Shows the previous commit/provided hash authour
+#!/bin/bash
+
 git --no-pager show -s --format="%aN <%aE>" $1
