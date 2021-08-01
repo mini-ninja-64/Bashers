@@ -2,5 +2,6 @@
 
 SVG_FILE=$1
 PNG_FILE="${SVG_FILE%.*}.png"
+DPI=${2:-300}
 
 inkscape $SVG_FILE -b white -d 300 -o $PNG_FILE
