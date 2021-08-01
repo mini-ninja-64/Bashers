@@ -1,0 +1,6 @@
+#!/bin/bash
+
+SVG_FILE=$1
+PNG_FILE="${SVG_FILE%.*}.png"
+
+inkscape $SVG_FILE -b white -d 300 -o $PNG_FILE
