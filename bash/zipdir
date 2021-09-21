@@ -1,6 +1,9 @@
 #!/bin/bash
 
-DIR=$1
-ZIP_FILE="${DIR%/}"
+DIR="$1"
+DIR_FULL_PATH=$(realpath "$DIR")
+DIR_BASE_NAME=$(basename "$DIR_FULL_PATH")
+FALLBACK_ZIP_FILE="$DIR_BASE_NAME.zip"
+ZIP_FILE="${2:-"$FALLBACK_ZIP_FILE"}"
 
-zip -r $ZIP_FILE $DIR -x "*.DS_Store"
+zip -r "$ZIP_FILE" "$DIR" -x "*.DS_Store"
