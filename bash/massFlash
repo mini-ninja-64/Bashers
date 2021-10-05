@@ -1,0 +1,55 @@
+#!/bin/bash
+MCU="$1"
+FIRMWARE_FILE="$2"
+
+AVR=( atmega32u4 atmega32u2 )
+STM32=( stm32 f072 )
+
+if [[ -z "$FIRMWARE_FILE" ]]; then
+    echo "Firmware file required"
+    exit 1
+fi
+
+arrayContains() {
+    local item="$1"
+    local array=("${@:2}")
+
+    for arrayItem in "${array[@]}"; do
+        if [[ "$item" == "$arrayItem" ]]; then
+            return
+        fi
+    done
+    false
+}
+
+avrFlash() {
+    
+    echo "Waiting for $MCU device..."
+    until dfu-programmer $MCU get product-name --quiet 2> /dev/null
+    do
+        sleep 1
+    done
+    dfu-programmer $MCU erase --force --quiet
+    dfu-programmer $MCU flash --quiet "$FIRMWARE_FILE"
+    dfu-programmer $MCU reset --quiet
+}
+
+stmFlash() {
+    dfu-util --alt 0 -w --device 0483:df11 --dfuse-address 0x08000000:leave -D "$FIRMWARE_FILE"
+}
+
+FLASH_FUNCTION=""
+if arrayContains $MCU "${AVR[@]}"; then
+    printf "Flashing AVR using dfu-programmer\n"
+    FLASH_FUNCTION="avrFlash"
+elif arrayContains $MCU "${STM32[@]}"; then
+    printf "Flashing STM32 using dfu-util\n"
+    FLASH_FUNCTION="stmFlash"
+else
+    echo "Unsupported MCU: '$MCU'"
+    exit 1
+fi
+
+while true; do
+    $FLASH_FUNCTION
+done
