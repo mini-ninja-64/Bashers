@@ -1,0 +1,8 @@
+#!/bin/bash
+
+JS_PROG="
+const queryRegex = /query=([^&]*)&/;
+console.log( decodeURIComponent(process.argv[1].match(queryRegex)[1]) )
+"
+
+node -e "$JS_PROG" "$@"
