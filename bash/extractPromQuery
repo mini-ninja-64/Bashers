@@ -11,21 +11,31 @@ const url = new URL(urlString);
 
 const charRegex = /[a-zA-Z]/g;
 
-const formatDate = (date) => \`\${date.getFullYear()}-\${date.getMonth()}-\${date.getDay()} \${date.getHours()}:\${date.getMinutes()}:\${date.getSeconds()}\`
+const padNum = (num, length=2) => num.toString().padStart(length, '0')
+const formatDate = (date) => \`\${date.getUTCFullYear()}-\${padNum(date.getUTCMonth()+1)}-\${padNum(date.getUTCDate())} \${padNum(date.getUTCHours())}:\${padNum(date.getUTCMinutes())}:\${padNum(date.getUTCSeconds())}\`
 const dateFromQuery = (value) => new Date(parseInt(value) * 1000);
+const generateGraphUrl = (prometheusUrl, query, delta, end) => \`\${prometheusUrl}/graph?g0.expr=\${encodeURIComponent(query)}&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=\${delta}ms&g0.end_input=\${encodeURIComponent(formatDate(end))}&g0.moment_input=\${encodeURIComponent(formatDate(end))}\`
 
 const epochs = ['start', 'end'];
+
+if (!url.searchParams.has('query')) {console.log(\"query is required\"); process.exit();}
 
 for (const [key, value] of url.searchParams) {
     if (epochs.includes(key)) console.log(\`\${key}: \${formatDate(dateFromQuery(value))} (\${value})\`);
     else console.log(\`\${key}: \${value}\`);
 }
 
-if(url.searchParams.has('start') && url.searchParams.has('end')) {
-    const start = dateFromQuery(url.searchParams.get('start'));
-    const end = dateFromQuery(url.searchParams.get('end'));
+console.log('\nExtra Info:');
 
-    console.log(\`\ndelta: \${end-start}ms\`)
+if(url.searchParams.has('start') && url.searchParams.has('end')) {
+    const query = url.searchParams.get('query');
+
+    const startDate = dateFromQuery(url.searchParams.get('start'));
+    const endDate = dateFromQuery(url.searchParams.get('end'));
+    const delta = endDate-startDate;
+
+    console.log(\`delta: \${delta}ms\`);
+    console.log(\`url: \${generateGraphUrl(url.origin, query, delta, endDate)}\`)
 }
 "
 
