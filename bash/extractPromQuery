@@ -1,8 +1,27 @@
 #!/bin/bash
 
 JS_PROG="
-const queryRegex = /query=([^&]*)&/;
-console.log( decodeURIComponent(process.argv[1].match(queryRegex)[1]) )
+const urlString = process.argv[1];
+const url = new URL(urlString);
+
+const charRegex = /[a-zA-Z]/g;
+
+const formatDate = (date) => \`\${date.getFullYear()}-\${date.getMonth()}-\${date.getDay()} \${date.getHours()}:\${date.getMinutes()}:\${date.getSeconds()}\`
+const dateFromQuery = (value) => new Date(parseInt(value) * 1000);
+
+const epochs = ['start', 'end'];
+
+for (const [key, value] of url.searchParams) {
+    if (epochs.includes(key)) console.log(\`\${key}: \${formatDate(dateFromQuery(value))} (\${value})\`);
+    else console.log(\`\${key}: \${value}\`);
+}
+
+if(url.searchParams.has('start') && url.searchParams.has('end')) {
+    const start = dateFromQuery(url.searchParams.get('start'));
+    const end = dateFromQuery(url.searchParams.get('end'));
+
+    console.log(\`\ndelta: \${end-start}ms\`)
+}
 "
 
 node -e "$JS_PROG" "$@"
