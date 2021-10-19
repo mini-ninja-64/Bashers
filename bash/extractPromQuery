@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if ! command -v node &> /dev/null; then
+    echo "'node' could not be found and is required for this script"
+    exit 1
+fi
+
 JS_PROG="
 const urlString = process.argv[1];
 const url = new URL(urlString);
