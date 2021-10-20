@@ -6,54 +6,64 @@ if ! command -v node &> /dev/null; then
 fi
 
 JS_PROG="
-const urlString = process.argv[1];
-const url = new URL(urlString);
-
-const charRegex = /[a-zA-Z]/g;
+const urls = process.argv.slice(1)
 
 const padNum = (num, length=2) => num.toString().padStart(length, '0')
 const formatDate = (date) => \`\${date.getUTCFullYear()}-\${padNum(date.getUTCMonth()+1)}-\${padNum(date.getUTCDate())} \${padNum(date.getUTCHours())}:\${padNum(date.getUTCMinutes())}:\${padNum(date.getUTCSeconds())}\`
 const dateFromQuery = (value) => new Date(parseInt(value) * 1000);
 
-const generateGraphUrl = (url, graphParams, graphIndex=0) => Object.entries(graphParams)
-                                                          .filter(([key, value]) => (value !== undefined || value !== null ))
-                                                          .reduce((total, [key, value], index) => \`\${total}\${index===0 ? '?' : '&'}g\${graphIndex}.\${key}=\${encodeURIComponent(value)}\`, \`\${url}/graph\`);
-
-const epochs = ['start', 'end'];
-
-if (!url.searchParams.has('query')) {console.log(\"query is required\"); process.exit();}
-
-for (const [key, value] of url.searchParams) {
-    if (epochs.includes(key)) console.log(\`\${key}: \${formatDate(dateFromQuery(value))} (\${value})\`);
-    else console.log(\`\${key}: \${value}\`);
+const graphMutators = {
+    range_input: (delta) => delta+'ms',
+    end_input: (date) => formatDate(date),
+    step_input: (step) => step.slice(0, -1)
 }
 
-console.log('\nExtra Info:');
+const generateQueryParams = (graph, graphIndex) => Object.entries(graph)
+                                                    .filter(([key, value]) => (value !== undefined || value !== null || key === '_url'))
+                                                    .map(([key, value]) => [key, (graphMutators.hasOwnProperty(key) ? graphMutators[key](value) : value)])
+                                                    .reduce((queryParams, [key, value]) => { queryParams.push(\`g\${graphIndex}.\${key}=\${encodeURIComponent(value)}\`); return queryParams }, []);
 
-if(url.searchParams.has('start') && url.searchParams.has('end')) {
-    const query = url.searchParams.get('query');
+const generateGraphUrl = (url, graphs) => \`\${url}/graph?\${graphs.map(generateQueryParams).flat().join('&')}\`
+                                                        
 
-    const startDate = dateFromQuery(url.searchParams.get('start'));
-    const endDate = dateFromQuery(url.searchParams.get('end'));
-    const delta = endDate-startDate;
+const graphs = urls.map((urlString,index) => {
+    const url = new URL(urlString);
 
-    let step = url.searchParams.get('step');
-    if(step && step.endsWith('s')) {
-        step = step.slice(0, -1);
+    const charRegex = /[a-zA-Z]/g;
+
+    const epochs = ['start', 'end'];
+
+    if (!url.searchParams.has('query')) {console.log(\"query is required\"); process.exit();}
+    console.log(\`Graph \${index}:\`)
+
+    for (const [key, value] of url.searchParams) {
+        if (epochs.includes(key)) console.log(\`\t\${key}: \${formatDate(dateFromQuery(value))} (\${value})\`);
+        else console.log(\`\t\${key}: \${value}\`);
     }
 
-    console.log(\`delta: \${delta}ms\`);
-    console.log(generateGraphUrl(url.origin, 
-    {
+    const query = url.searchParams.get('query');
+    const startDate = dateFromQuery(url.searchParams.get('start'));
+    const endDate = dateFromQuery(url.searchParams.get('end'));
+    const step = url.searchParams.get('step');
+
+    const delta = endDate-startDate;
+
+    const graph = {
+        _url: url.origin,
         expr: query, 
-        range_input: delta+'ms', 
-        end_input: formatDate(endDate), 
+        range_input: delta, 
+        end_input: endDate, 
         step_input: step,
         tab: 0,
         stacked: 0,
         show_exemplars: 0
-    }))
-}
+    }
+    return graph;
+});
+
+console.log();
+
+console.log(\`URL: \${generateGraphUrl(graphs[0]._url, graphs)}\`);
 "
 
 node -e "$JS_PROG" "$@"
