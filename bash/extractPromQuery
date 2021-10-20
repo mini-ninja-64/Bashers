@@ -14,7 +14,10 @@ const charRegex = /[a-zA-Z]/g;
 const padNum = (num, length=2) => num.toString().padStart(length, '0')
 const formatDate = (date) => \`\${date.getUTCFullYear()}-\${padNum(date.getUTCMonth()+1)}-\${padNum(date.getUTCDate())} \${padNum(date.getUTCHours())}:\${padNum(date.getUTCMinutes())}:\${padNum(date.getUTCSeconds())}\`
 const dateFromQuery = (value) => new Date(parseInt(value) * 1000);
-const generateGraphUrl = (prometheusUrl, query, delta, end) => \`\${prometheusUrl}/graph?g0.expr=\${encodeURIComponent(query)}&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=\${delta}ms&g0.end_input=\${encodeURIComponent(formatDate(end))}&g0.moment_input=\${encodeURIComponent(formatDate(end))}\`
+
+const generateGraphUrl = (url, graphParams, graphIndex=0) => Object.entries(graphParams)
+                                                          .filter(([key, value]) => (value !== undefined || value !== null ))
+                                                          .reduce((total, [key, value], index) => \`\${total}\${index===0 ? '?' : '&'}g\${graphIndex}.\${key}=\${encodeURIComponent(value)}\`, \`\${url}/graph\`);
 
 const epochs = ['start', 'end'];
 
@@ -34,8 +37,22 @@ if(url.searchParams.has('start') && url.searchParams.has('end')) {
     const endDate = dateFromQuery(url.searchParams.get('end'));
     const delta = endDate-startDate;
 
+    let step = url.searchParams.get('step');
+    if(step && step.endsWith('s')) {
+        step = step.slice(0, -1);
+    }
+
     console.log(\`delta: \${delta}ms\`);
-    console.log(\`url: \${generateGraphUrl(url.origin, query, delta, endDate)}\`)
+    console.log(generateGraphUrl(url.origin, 
+    {
+        expr: query, 
+        range_input: delta+'ms', 
+        end_input: formatDate(endDate), 
+        step_input: step,
+        tab: 0,
+        stacked: 0,
+        show_exemplars: 0
+    }))
 }
 "
 
