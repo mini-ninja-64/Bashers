@@ -1,0 +1,3 @@
+#!/bin/bash
+
+kubectl run --rm -i --tty --limits='cpu=128m,memory=50Mi' test-shell --image alpine -- /bin/sh
