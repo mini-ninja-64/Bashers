@@ -7,7 +7,7 @@ fi
 
 POD_NAME="${1:-test-shell}"
 
-KUBECTL_COMMAND=kubectl
+KUBECTL_COMMAND="kubectl"
 
 # Get current kubectl version
 KUBECTL_CLIENT_VERSION_JSON=$($KUBECTL_COMMAND version --client -ojson)
@@ -49,4 +49,4 @@ else
     KUBECTL_EXTRA_ARGS+=("--limits=cpu=$CPU_LIMIT,memory=$MEMORY_LIMIT")
 fi
 
-$KUBECTL_COMMAND run "$POD_NAME" --image alpine --rm --stdin --tty "${KUBECTL_EXTRA_ARGS[@]}"  -- /bin/sh
+"$KUBECTL_COMMAND" run "$POD_NAME" --image alpine --rm --stdin --tty "${KUBECTL_EXTRA_ARGS[@]}"  -- /bin/sh
