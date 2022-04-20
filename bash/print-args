@@ -1,0 +1,7 @@
+#!/bin/bash
+
+ARG_COUNT=0
+for ARG in "$@"; do
+    printf "ARG %i:\n%s\n\n" "$ARG_COUNT" "$ARG"
+    ((ARG_COUNT++))
+done
