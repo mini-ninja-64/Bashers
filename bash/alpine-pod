@@ -1,3 +1,52 @@
 #!/bin/bash
 
-kubectl run --rm -i --tty --limits='cpu=0m,memory=0Mi' test-shell --image alpine -- /bin/sh
+if ! command -v jq > /dev/null; then
+    echo "'jq' cannot be found, please install 'jq'"
+    exit 1
+fi
+
+POD_NAME="${1:-test-shell}"
+
+KUBECTL_COMMAND=kubectl
+
+# Get current kubectl version
+KUBECTL_CLIENT_VERSION_JSON=$($KUBECTL_COMMAND version --client -ojson)
+KUBECTL_CLIENT_MAJOR=$(echo -n "$KUBECTL_CLIENT_VERSION_JSON" | jq .clientVersion.major -r)
+KUBECTL_CLIENT_MINOR=$(echo -n "$KUBECTL_CLIENT_VERSION_JSON" | jq .clientVersion.minor -r)
+
+KUBECTL_EXTRA_ARGS=()
+
+# limits are often a required pod property, historically this was done with '--limits' which has been deprecated going forward the cleanest way to do this is using a json patch
+
+# History:
+# In kubectl version 1.24 '--limits' was removed
+# In kubectl version 1.23 '--overide-type' was introduced
+# In kubectl version 1.21 '--limits' was deprecated
+
+# This means that we should check kubectl version and act accordingly
+# if version >= 1.23 use json patch
+# else use '--limits' as although deprecated for 1.21 & 1.22 it still works
+CPU_LIMIT="0m"
+MEMORY_LIMIT="0Mi"
+if [ "$KUBECTL_CLIENT_MAJOR" -ge 1 ] && [ "$KUBECTL_CLIENT_MINOR" -ge 23 ]; then
+    echo "Using JSON Patch to set pod limits as kubectl version >= 1.23"
+    JSON_PATCH="
+    [
+        {
+            \"op\": \"add\",
+            \"path\": \"/spec/containers/0/resources\",
+            \"value\": {
+                \"limits\": {
+                    \"cpu\": \"$CPU_LIMIT\",
+                    \"memory\": \"$MEMORY_LIMIT\"
+                }
+            }
+        }
+    ]"
+    KUBECTL_EXTRA_ARGS+=("--override-type" "json" "--overrides=$JSON_PATCH")
+else
+    echo "Using '--limits' setting as kubectl version < 1.23"
+    KUBECTL_EXTRA_ARGS+=("--limits=cpu=$CPU_LIMIT,memory=$MEMORY_LIMIT")
+fi
+
+$KUBECTL_COMMAND run "$POD_NAME" --image alpine --rm --stdin --tty "${KUBECTL_EXTRA_ARGS[@]}"  -- /bin/sh
