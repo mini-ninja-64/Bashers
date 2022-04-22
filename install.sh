@@ -37,5 +37,5 @@ source \"\$BASHERS_DIR/.bashersrc\"
 
 printf "\nAdding the following to '%s':\n%s" "$RC_FILE" "$RC_ADDITION"
 
-echo "$RC_ADDITION" >> "$RC_FILE"
+printf "%s" "$RC_ADDITION" >> "$RC_FILE"
 printf "\nInstall completed!\nrun 'source %s' or restart your terminal\n" "$RC_FILE"
