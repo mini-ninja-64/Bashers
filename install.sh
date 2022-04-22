@@ -3,7 +3,7 @@
 set -e
 
 fullPath() {
-  echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+  echo $(realpath "$1")
 }
 
 RELATIVE_CLONE_DIRECTORY="$1"
@@ -18,9 +18,9 @@ echo "Installing bashers (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"
 
 RC_FILE=""
 case "$SHELL" in
-  *zsh)  RC_FILE="~/.zshrc" ;;
-  *bash) RC_FILE="~/.bashrc" ;;
-  *sh)   RC_FILE="~/.profile" ;;
+  *zsh)  RC_FILE="$HOME/.zshrc" ;;
+  *bash) RC_FILE="$HOME/.bashrc" ;;
+  *sh)   RC_FILE="$HOME/.profile" ;;
   *)     echo "unsupported shell" && exit 1 ;;
 esac
 
@@ -30,11 +30,12 @@ printf "\nAttempting to clone 'Bashers' inside of '$CLONE_DIRECTORY'\n"
 mkdir -p "$CLONE_DIRECTORY"
 git -C "$CLONE_DIRECTORY" clone git@github.com:mini-ninja-64/Bashers.git
 
-printf "\nAdding the following to '$RC_FILE':\n"
 RC_ADDITION="
 BASHERS_DIR="$CLONE_DIRECTORY/Bashers"
-export PATH=\"\$PATH:\$BASHERS_DIR/bash\"
+source \"\$BASHERS_DIR/.bashersrc\"
 "
-echo "$RC_ADDITION"
+
+printf "\nAdding the following to '%s':\n%s" "$RC_FILE" "$RC_ADDITION"
 
 echo "$RC_ADDITION" >> "$RC_FILE"
+printf "\nInstall completed!\nrun 'source %s' or restart your terminal\n" "$RC_FILE"

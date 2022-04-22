@@ -1,0 +1,6 @@
+SCRIPT_PATH=$(realpath "$0")
+BASHERS_DIR=$(dirname "$SCRIPT_PATH")
+
+export PATH="$PATH:$BASHERS_DIR/bash"
+
+alias update-bashers="git -C $BASHERS_DIR pull --rebase"
