@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -20,7 +20,6 @@ RC_FILE=""
 case "$SHELL" in
   *zsh)  RC_FILE="$HOME/.zshrc" ;;
   *bash) RC_FILE="$HOME/.bashrc" ;;
-  *sh)   RC_FILE="$HOME/.profile" ;;
   *)     echo "unsupported shell" && exit 1 ;;
 esac
 
