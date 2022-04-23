@@ -1,4 +1,12 @@
-SCRIPT_PATH=$(realpath "$0")
+RELATIVE_SCRIPT_PATH=""
+
+case "$SHELL" in
+  *zsh)  RELATIVE_SCRIPT_PATH="$0" ;;
+  *bash) RELATIVE_SCRIPT_PATH="$BASH_SOURCE" ;;
+  *)     echo "unsupported shell" && exit 1 ;;
+esac
+
+SCRIPT_PATH=$(realpath "$RELATIVE_SCRIPT_PATH")
 BASHERS_DIR=$(dirname "$SCRIPT_PATH")
 THIS_FILE="$BASHERS_DIR/.bashersrc"
 
