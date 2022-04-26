@@ -28,7 +28,7 @@ KUBECTL_EXTRA_ARGS=()
 # else use '--limits' as although deprecated for 1.21 & 1.22 it still works
 CPU_LIMIT="0m"
 MEMORY_LIMIT="0Mi"
-if [ "$KUBECTL_CLIENT_MAJOR" -ge 1 ] && [ "$KUBECTL_CLIENT_MINOR" -ge 23 ]; then
+if [ "$KUBECTL_CLIENT_MAJOR" -gt 1 ] || { [ "$KUBECTL_CLIENT_MAJOR" -eq 1 ] && [ "$KUBECTL_CLIENT_MINOR" -ge 23 ]; };  then
     echo "Using JSON Patch to set pod limits as kubectl version >= 1.23"
     JSON_PATCH="
     [
