@@ -29,7 +29,7 @@ KUBECTL_EXTRA_ARGS=()
 CPU_LIMIT="0m"
 MEMORY_LIMIT="0Mi"
 if [ "$KUBECTL_CLIENT_MAJOR" -gt 1 ] || { [ "$KUBECTL_CLIENT_MAJOR" -eq 1 ] && [ "$KUBECTL_CLIENT_MINOR" -ge 23 ]; };  then
-    echo "Using JSON Patch to set pod limits as kubectl version >= 1.23"
+    echo "Using JSON Patch to set pod limits as kubectl version >= 1.23 ($KUBECTL_CLIENT_MAJOR.$KUBECTL_CLIENT_MINOR)"
     JSON_PATCH="
     [
         {
@@ -45,7 +45,7 @@ if [ "$KUBECTL_CLIENT_MAJOR" -gt 1 ] || { [ "$KUBECTL_CLIENT_MAJOR" -eq 1 ] && [
     ]"
     KUBECTL_EXTRA_ARGS+=("--override-type" "json" "--overrides=$JSON_PATCH")
 else
-    echo "Using '--limits' setting as kubectl version < 1.23"
+    echo "Using '--limits' setting as kubectl version < 1.23 ($KUBECTL_CLIENT_MAJOR.$KUBECTL_CLIENT_MINOR)"
     KUBECTL_EXTRA_ARGS+=("--limits=cpu=$CPU_LIMIT,memory=$MEMORY_LIMIT")
 fi
 
