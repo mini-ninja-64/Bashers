@@ -18,7 +18,7 @@ alias update-bashers="git -C \"$BASHERS_DIR\" pull --rebase && source \"$THIS_FI
 uninstall-bashers() {
   local rc_lines_to_delete=( "BASHERS_DIR=\"$BASHERS_DIR\"" "source \"\$BASHERS_DIR/.bashersrc\"" )
 
-  echo "backing up your rc file: '$RC_FILE' -> '$RC_FILE.bak'"
+  echo "Backing up your rc file: '$RC_FILE' -> '$RC_FILE.bak'"
   cp "$RC_FILE" "$RC_FILE.bak"
   local grep_args=()
   for line_to_delete in "${rc_lines_to_delete[@]}"; do
@@ -32,5 +32,8 @@ uninstall-bashers() {
   
   rm -rf "$BASHERS_DIR"
   echo "Removed bashers folder '$BASHERS_DIR'"
+
+  echo "Bashers has been uninstalled (ಥ﹏ಥ)"
+  echo "Run 'source \"$RC_FILE\"' or restart your terminal"
 }
 
