@@ -1,8 +1,8 @@
 RELATIVE_SCRIPT_PATH=""
-
+RC_FILE=""
 case "$SHELL" in
-  *zsh)  RELATIVE_SCRIPT_PATH="$0" ;;
-  *bash) RELATIVE_SCRIPT_PATH="$BASH_SOURCE" ;;
+  *zsh)  RELATIVE_SCRIPT_PATH="$0"; RC_FILE="$HOME/.zshrc" ;;
+  *bash) RELATIVE_SCRIPT_PATH="$BASH_SOURCE"; RC_FILE="$HOME/.bashrc"  ;;
   *)     echo "unsupported shell" && exit 1 ;;
 esac
 
@@ -12,4 +12,25 @@ THIS_FILE="$BASHERS_DIR/.bashersrc"
 
 export PATH="$PATH:$BASHERS_DIR/bash"
 
-alias update-bashers="git -C $BASHERS_DIR pull --rebase && source $THIS_FILE"
+alias update-bashers="git -C \"$BASHERS_DIR\" pull --rebase && source \"$THIS_FILE\""
+
+
+uninstall-bashers() {
+  local rc_lines_to_delete=( "BASHERS_DIR=\"$BASHERS_DIR\"" "source \"\$BASHERS_DIR/.bashersrc\"" )
+
+  echo "backing up your rc file: '$RC_FILE' -> '$RC_FILE.bak'"
+  cp "$RC_FILE" "$RC_FILE.bak"
+  local grep_args=()
+  for line_to_delete in "${rc_lines_to_delete[@]}"; do
+    grep_args+=("-e" "$line_to_delete")
+  done
+
+  local clean_rc_file=""
+  clean_rc_file=$(cat "$RC_FILE" | grep --invert-match "${grep_args[@]}")
+  echo -n "$clean_rc_file" > "$RC_FILE"
+  echo "Removed bashers from '$RC_FILE'"
+  
+  rm -rf "$BASHERS_DIR"
+  echo "Removed bashers folder '$BASHERS_DIR'"
+}
+

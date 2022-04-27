@@ -30,7 +30,7 @@ mkdir -p "$CLONE_DIRECTORY"
 git -C "$CLONE_DIRECTORY" clone git@github.com:mini-ninja-64/Bashers.git
 
 RC_ADDITION="
-BASHERS_DIR="$CLONE_DIRECTORY/Bashers"
+BASHERS_DIR=\"$CLONE_DIRECTORY/Bashers\"
 source \"\$BASHERS_DIR/.bashersrc\"
 "
 
