@@ -3,4 +3,4 @@
 VID_FILE=$1
 WEBM_FILE="${VID_FILE%.*}.webm"
 
-ffmpeg -i $VID_FILE -c:v libvpx-vp9 -b:v 1M -c:a libopus -b:a 128k $WEBM_FILE
+ffmpeg -i "$VID_FILE" -c:v libvpx-vp9 -b:v 1M -c:a libopus -b:a 128k "$WEBM_FILE"
