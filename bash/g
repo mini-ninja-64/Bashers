@@ -1,0 +1,26 @@
+#!/bin/bash
+
+GW_EXECUTABLE_NAME=gradlew
+GW_PATH="./$GW_EXECUTABLE_NAME"
+
+GW_FOUND=1
+
+file-dir() {
+    local file="$1"
+    echo -n "$(realpath "$(dirname "$file")")"
+}
+
+while [ ! -f "$GW_PATH" ]; do
+    GW_PATH="../$GW_PATH"
+    if [ "$(file-dir "$GW_PATH")" == "/" ]; then
+        GW_FOUND=0
+        break
+    fi
+done
+
+if [ "$GW_FOUND" == "1" ]; then
+    echo "Gradle wrapper found, will default to using"
+    "$GW_PATH" "$@"
+else 
+    gradle "$@"
+fi
