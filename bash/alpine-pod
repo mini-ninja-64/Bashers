@@ -5,7 +5,8 @@ if ! command -v jq > /dev/null; then
     exit 1
 fi
 
-POD_NAME="${1:-test-shell}"
+POD_IMAGE="${1:-alpine}"
+POD_NAME="${2:-test-shell}"
 
 KUBECTL_COMMAND="kubectl"
 
@@ -49,4 +50,4 @@ else
     KUBECTL_EXTRA_ARGS+=("--limits=cpu=$CPU_LIMIT,memory=$MEMORY_LIMIT")
 fi
 
-"$KUBECTL_COMMAND" run "$POD_NAME" --image alpine --rm --stdin --tty "${KUBECTL_EXTRA_ARGS[@]}"  -- /bin/sh
+"$KUBECTL_COMMAND" run "$POD_NAME" --image "$POD_IMAGE" --rm --stdin --tty "${KUBECTL_EXTRA_ARGS[@]}"  -- /bin/sh
