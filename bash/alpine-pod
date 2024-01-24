@@ -42,6 +42,13 @@ if [ "$KUBECTL_CLIENT_MAJOR" -gt 1 ] || { [ "$KUBECTL_CLIENT_MAJOR" -eq 1 ] && [
                     \"memory\": \"$MEMORY_LIMIT\"
                 }
             }
+        },
+        {
+            \"op\": \"add\",
+            \"path\": \"/spec/securityContext\",
+            \"value\": {
+                \"runAsNonRoot\": true
+            }
         }
     ]"
     KUBECTL_EXTRA_ARGS+=("--override-type" "json" "--overrides=$JSON_PATCH")
