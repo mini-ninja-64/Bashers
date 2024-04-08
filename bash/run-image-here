@@ -1,0 +1,9 @@
+IMAGE="$1"
+
+docker run \
+  -it \
+  --rm \
+  --name image-runner \
+  --mount type=bind,source="$(pwd)",target="/home/mounted" \
+  --entrypoint "/bin/bash" \
+  "$IMAGE"
