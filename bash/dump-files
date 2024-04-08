@@ -1,0 +1,16 @@
+#!/bin/bash
+
+FILE_MATCHERS=("$@")
+
+function logFile() {
+    echo $1
+}
+
+for FILE_MATCHER in "${FILE_MATCHERS[@]}"; do
+    find . -name "$FILE_MATCHER" | while read FILE_PATH; do
+        FILE_PATH_WITHOUT_PREFIX="${FILE_PATH/.\//}";
+        echo "$FILE_PATH_WITHOUT_PREFIX:";
+        cat "$FILE_PATH"
+        echo ""
+    done
+done
